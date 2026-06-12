@@ -11,11 +11,11 @@ Téodul Guiraud
 
 Les tumeurs cérébrales se diagnostiquent quasi-exclusivement par IRM, et les modèles de deep learning atteignent aujourd'hui des performances comparables à celles d'un expert. Cependant, on ne sait pas vraiment sur quoi reposent leurs décisions ni quelle confiance leur accorder, ce qui pose problème en contexte clinique. Ce mémoire cherche à améliorer l'explicabilité et la fiabilité d'un modèle de classification d'IRM cérébrales à 4 classes (gliome, méningiome, tumeur pituitaire, absence de tumeur).
 
-J'ai d'abord entraîné un CNN de référence déterministe (ResNet18), puis construit une architecture bayésienne qui combine ce même ResNet18 avec une tête bayésienne (torchbnn, 50 passes Monte-Carlo) et une estimation de l'âge cérébral obtenue par un EfficientNet-B0 entraîné sur le dataset IXI. J'ai comparé cette approche à une variante MC Dropout et validé les modèles sur le dataset externe Br35H.
+J'ai d'abord entraîné un CNN de référence déterministe (ResNet18), puis construit une architecture bayésienne qui combine ce même ResNet18 avec une tête bayésienne (torchbnn, 50 passes Monte-Carlo). J'ai aussi testé une variante multimodale intégrant une estimation de l'âge cérébral, obtenue par un EfficientNet-B0 entraîné sur le dataset IXI. J'ai comparé ce BNN à une variante MC Dropout et validé les trois modèles sur le dataset externe Br35H.
 
 J'ai constaté que 61.5 % des images de test étaient présentes dans le train. J'ai donc reconstruit un split propre (4 606 images d'entraînement, 1 149 de test, zéro doublon).
 
-Le passage au bayésien préserve les performances (AUC 0.995 contre 0.998 pour le CNN) tout en apportant une mesure d'incertitude par prédiction : les prédictions incorrectes sont en moyenne **4.83 fois plus incertaines que les correctes**. La variante image-only est mieux calibrée que le CNN (ECE 0.0085 contre 0.0160). L'ajout de la feature âge dégrade la calibration (ECE 0.0276).
+Le passage au bayésien préserve les performances (AUC 0.995 contre 0.998 pour le CNN) tout en apportant une mesure d'incertitude par prédiction : les prédictions incorrectes sont en moyenne **4.83 fois plus incertaines que les correctes**. Ce BNN est mieux calibré que le CNN (ECE 0.0085 contre 0.0160). La variante multimodale dégrade la calibration (ECE 0.0276) et n'apporte pas de gain de performance.
 
 En distribution, trier les prédictions par incertitude croissante permet de couvrir **87.8 % des erreurs en ne renvoyant que 20 % des images à un radiologue**. torchbnn produit une incertitude en distribution 20 fois plus élevée que MC Dropout (σ médian 0.0218 contre 0.0010). MC Dropout est presque déterministe et ne permet pas de définir un seuil de triage clinique. Les cartes Grad-CAM calculées sur 50 passes ajoutent une carte de variance spatiale de l'attention.
 
@@ -27,11 +27,11 @@ En distribution, trier les prédictions par incertitude croissante permet de cou
 
 Brain tumors are diagnosed almost exclusively through MRI, and deep learning models now reach performance comparable to that of an expert. Yet it usually remains unclear what their decisions rely on and how much confidence to place in them, which is a problem in a clinical setting. This thesis aims to improve the explainability and reliability of a four-class brain MRI classification model (glioma, meningioma, pituitary tumor, no tumor).
 
-I first trained a deterministic baseline CNN (ResNet18), then built a Bayesian architecture combining this same ResNet18 with a Bayesian head (torchbnn, 50 Monte-Carlo passes) and a brain-age estimate produced by an EfficientNet-B0 trained on the IXI dataset. I compared this approach to an MC Dropout variant and validated the models on the external Br35H dataset.
+I first trained a deterministic baseline CNN (ResNet18), then built a Bayesian architecture combining this same ResNet18 with a Bayesian head (torchbnn, 50 Monte-Carlo passes). I also tested a multimodal variant incorporating a brain-age estimate, produced by an EfficientNet-B0 trained on the IXI dataset. I compared this BNN to an MC Dropout variant and validated all three models on the external Br35H dataset.
 
 I found that 61.5% of test images were present in the training set. I therefore rebuilt a clean split (4,606 training images, 1,149 test images, zero duplicates).
 
-Moving to a Bayesian model preserves performance (AUC 0.995 versus 0.998 for the CNN) while providing a per-prediction uncertainty measure: **incorrect predictions are on average 4.83 times more uncertain than correct ones**. The image-only variant is better calibrated than the CNN (ECE 0.0085 versus 0.0160). Adding the age feature degrades calibration (ECE 0.0276).
+Moving to a Bayesian model preserves performance (AUC 0.995 versus 0.998 for the CNN) while providing a per-prediction uncertainty measure: **incorrect predictions are on average 4.83 times more uncertain than correct ones**. This BNN is better calibrated than the CNN (ECE 0.0085 versus 0.0160). The multimodal variant degrades calibration (ECE 0.0276) and does not improve performance.
 
 In-distribution, sorting predictions by uncertainty covers **87.8% of errors by sending only 20% of images to a radiologist**. torchbnn produces an in-distribution uncertainty 20 times higher than MC Dropout (σ median 0.0218 versus 0.0010). MC Dropout is nearly deterministic and does not allow a clinical triage threshold to be defined. Grad-CAM maps computed over 50 passes add a spatial variance map of the model's attention.
 
@@ -41,6 +41,7 @@ In-distribution, sorting predictions by uncertainty covers **87.8% of errors by 
 
 ## Ordre d'exécution
 
+0. `00_clean_split.ipynb` - Déduplication et split propre
 1. `01_cnn_baseline.ipynb` - CNN baseline ResNet18
 2. `02_brain_age_prediction.ipynb` - Prédicteur d'âge cérébral BrainAgeNet
 3. `03_bnn_multimodal.ipynb` - BNN multimodal torchbnn
