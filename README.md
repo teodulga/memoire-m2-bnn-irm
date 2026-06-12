@@ -13,7 +13,7 @@ Les tumeurs cérébrales se diagnostiquent quasi-exclusivement par IRM, et les m
 
 J'ai d'abord entraîné un CNN de référence déterministe (ResNet18), puis construit une architecture bayésienne qui combine ce même ResNet18 avec une tête bayésienne (torchbnn, 50 passes Monte-Carlo). J'ai aussi testé une variante multimodale intégrant une estimation de l'âge cérébral, obtenue par un EfficientNet-B0 entraîné sur le dataset IXI. J'ai comparé ce BNN à une variante MC Dropout et validé les trois modèles sur le dataset externe Br35H.
 
-J'ai constaté que 61.5 % des images de test étaient présentes dans le train. J'ai donc reconstruit un split propre (4 606 images d'entraînement, 1 149 de test, zéro doublon).
+J'ai constaté que 61.6 % des images de test étaient présentes dans le train. J'ai donc reconstruit un split propre (4 606 images d'entraînement, 1 149 de test, zéro doublon).
 
 Le passage au bayésien préserve les performances (AUC 0.995 contre 0.998 pour le CNN) tout en apportant une mesure d'incertitude par prédiction : les prédictions incorrectes sont en moyenne **4.83 fois plus incertaines que les correctes**. Ce BNN est mieux calibré que le CNN (ECE 0.0085 contre 0.0160). La variante multimodale dégrade la calibration (ECE 0.0276) et n'apporte pas de gain de performance.
 
@@ -29,7 +29,7 @@ Brain tumors are diagnosed almost exclusively through MRI, and deep learning mod
 
 I first trained a deterministic baseline CNN (ResNet18), then built a Bayesian architecture combining this same ResNet18 with a Bayesian head (torchbnn, 50 Monte-Carlo passes). I also tested a multimodal variant incorporating a brain-age estimate, produced by an EfficientNet-B0 trained on the IXI dataset. I compared this BNN to an MC Dropout variant and validated all three models on the external Br35H dataset.
 
-I found that 61.5% of test images were present in the training set. I therefore rebuilt a clean split (4,606 training images, 1,149 test images, zero duplicates).
+I found that 61.6% of test images were present in the training set. I therefore rebuilt a clean split (4,606 training images, 1,149 test images, zero duplicates).
 
 Moving to a Bayesian model preserves performance (AUC 0.995 versus 0.998 for the CNN) while providing a per-prediction uncertainty measure: **incorrect predictions are on average 4.83 times more uncertain than correct ones**. This BNN is better calibrated than the CNN (ECE 0.0085 versus 0.0160). The multimodal variant degrades calibration (ECE 0.0276) and does not improve performance.
 
